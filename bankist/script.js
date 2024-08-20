@@ -79,9 +79,10 @@ const displayMovements = function (movements) {
   });
 };
 
-const calcDisplayBalance = function (movements) {
-  const balance = movements.reduce((acc, curr) => (acc += curr));
-  labelBalance.textContent = `${balance}€`;
+const calcDisplayBalance = function (account) {
+  const balance = account.movements.reduce((acc, curr) => (acc += curr));
+  account.balance = balance;
+  labelBalance.textContent = `${account.balance}€`;
 };
 
 const calcDisplaySummary = function (account) {
@@ -99,7 +100,6 @@ const calcDisplaySummary = function (account) {
     .filter((mov) => mov > 0)
     .map((deposit) => (deposit * account.interestRate) / 100)
     .filter((int, i, arr) => {
-      console.log(arr);
       return int >= 1;
     })
     .reduce((acc, int) => acc + int, 0);
@@ -117,11 +117,16 @@ const createUsernames = function (accounts) {
 };
 createUsernames(accounts);
 
+const updateUI = function (currentAccount) {
+  displayMovements(currentAccount.movements);
+  calcDisplayBalance(currentAccount);
+  calcDisplaySummary(currentAccount);
+};
+
 let currentAccount;
 
 btnLogin.addEventListener("click", function (e) {
   e.preventDefault();
-  console.log("hola");
   currentAccount = accounts.find(
     (acc) => acc.username === inputLoginUsername.value
   );
@@ -137,11 +142,33 @@ btnLogin.addEventListener("click", function (e) {
     inputLoginUsername.value = inputLoginPin.value = "";
     inputLoginPin.blur();
 
-    displayMovements(account1.movements);
-    calcDisplayBalance(account1.movements);
-    calcDisplaySummary(account1);
+    updateUI(currentAccount);
   }
 });
+
+btnTransfer.addEventListener("click", function (e) {
+  e.preventDefault();
+  const amount = Number(inputTransferAmount.value);
+  const receiverAccount = accounts.find(
+    (acc) => acc.username === inputTransferTo.value
+  );
+  inputTransferAmount.value = inputTransferTo.value = "";
+
+  if (
+    amount > 0 &&
+    currentAccount.balance >= amount &&
+    receiverAccount.username !== currentAccount.username
+  ) {
+    currentAccount.movements.push(-amount);
+    receiverAccount.movements.push(amount);
+    updateUI(currentAccount);
+  }
+});
+
+
+btnClose.addEventListener('click', function(e)) {
+  e.preventDefault()
+}
 
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
