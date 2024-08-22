@@ -134,3 +134,43 @@ const handleHover = function (e) {
 // passing "argument" into handler
 nav.addEventListener("mouseover", handleHover.bind(0.5));
 nav.addEventListener("mouseout", handleHover.bind(1));
+
+///////////////////////////////////////
+// Sticky navigation
+
+// const initStickyNavCoords = section1.getBoundingClientRect();
+// window.addEventListener("scroll", function () {
+//   if (window.scrollY > initStickyNavCoords.top) nav.classList.add("sticky");
+//   else nav.classList.remove("sticky");
+// }); WRONG WAY, BAD PERFORMANCE CAUSE SCROLL LISTENER
+
+// const obsCallback = function (entries, observer) {
+//   entries.forEach((entry) => console.log(entry));
+// };
+
+// const obsOptions = {
+//   root: null, // null because we are observing in the viewport
+//   threshold: [0, 0.2], // when intersection (when we can see) 10% of the element for example
+// };
+
+// const observer = new IntersectionObserver(obsCallback, obsOptions);
+// observer.observe(section1);
+
+const header = document.querySelector(".header");
+const navHeight = nav.getBoundingClientRect().height;
+
+const stickyNav = function (entries) {
+  const [entry] = entries;
+  console.log(entry);
+  if (entry.isIntersecting) {
+    nav.classList.remove("sticky");
+  } else {
+    nav.classList.add("sticky");
+  }
+};
+const headerObserver = new IntersectionObserver(stickyNav, {
+  root: null,
+  threshold: 0,
+  rootMargin: `-${navHeight}px`, // execute function 90 px before the threshold is reached.
+});
+headerObserver.observe(header);
